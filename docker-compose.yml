@@ -5,5 +5,5 @@ services:
     image: goutamsharma369/java-quotes-app:latest
     container_name: java_ci_cd_app
     ports:
-      - "80:5000"
+      - "80:8000"
     restart: always
