@@ -18,7 +18,7 @@ This project is a simple Java-based HTTP server that serves random motivational 
 ### Running Locally
 1. Clone the repository:
    ```sh
-   git clone https://github.com/LondheShubham153/java-quotes-app.git
+   git clone https://github.com/GoutamSharma369/java-quotes-app.git
    cd java-quotes-app
    ```
 2. Ensure `quotes.txt` exists in the project directory and contains quotes (one per line).
@@ -40,7 +40,7 @@ This project is a simple Java-based HTTP server that serves random motivational 
    ```
 2. Run the container:
    ```sh
-   docker run -p 8000:8000 motivational-quotes-api
+   docker run -p 80:8000 motivational-quotes-api
    ```
 3. Access the API at `http://localhost:8000/`.
 
@@ -59,10 +59,6 @@ project-root/
 ## Customizing Quotes
 To customize the quotes, edit `quotes.txt` and restart the application. Each quote should be on a new line.
 
-## License
-This project is licensed under the MIT License.
 
-## Author
-[TrainWithShubham](https://github.com/LondheShubham153)
 
 
