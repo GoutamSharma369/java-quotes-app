@@ -1,109 +1,86 @@
-Java Quotes Application CI/CD Pipeline
+# 🚀 CI/CD Pipeline for Java Quotes Application
 
-Hello! This repository hosts a simple Java application designed to demonstrate a complete Continuous Integration/Continuous Delivery (CI/CD) pipeline. Every change pushed here automatically results in a new, deployable Docker image.
+[cite_start]This document outlines the successful implementation of a full **Continuous Integration/Continuous Delivery (CI/CD) pipeline**, which automates the path from source code to a live application on an AWS EC2 instance[cite: 3].
 
-🚀 Technology & Tools
+---
 
-Component
+## 🗺️ Overview of the Pipeline
 
-Tool / Version
+[cite_start]The pipeline is triggered by a push to the **main branch**, automatically building a Docker image and preparing it for deployment[cite: 5].
 
-Purpose
+| Component | Tool / Target | Role in the Pipeline |
+| :--- | :--- | :--- |
+| **Source/Trigger** | GitHub | [cite_start]Code hosting and primary workflow trigger[cite: 6]. |
+| **CI Runner** | GitHub Actions | [cite_start]Executes tests, builds the artifact[cite: 6]. |
+| **Artifact Registry** | Docker Hub | [cite_start]Stores the final image (`goutamsharma369/java-quotes-app:latest`)[cite: 6]. |
+| **Deployment Target** | AWS EC2 (Ubuntu) | [cite_start]Production environment for container execution[cite: 6]. |
+| **Application** | Java 17 | [cite_start]Runs internally on port 8000[cite: 6]. |
 
-Application
+---
 
-Java 17
+## 🛠️ Phase 1: Continuous Integration (CI)
 
-Core application logic (Simple Quotes App).
+[cite_start]The CI phase ensures code quality and creates the deployable container artifact[cite: 8].
 
-CI/CD
+### Critical Setup Fixes
 
-GitHub Actions
+[cite_start]These actions resolved initial configuration hurdles[cite: 10]:
 
-Orchestrates the automated Test, Build, and Push process.
+| Action | Command Executed | Purpose |
+| :--- | :--- | :--- |
+| **Sync Repository** | `git push --force origin master:main` | [cite_start]Overwrote conflicting remote files to align local and remote branches[cite: 12]. |
+| **Security Fix** | *(New PAT Required)* | [cite_start]Updated Personal Access Token (PAT) to include the **workflow scope**, resolving write permission errors for GitHub Actions files[cite: 12]. |
 
-Containerization
+### CI Workflow Result
 
-Docker
+[cite_start]The workflow successfully built the Java application and published the image[cite: 14].
 
-Packages the application into a portable image.
+* [cite_start]**Image Path:** `goutamsharma369/java-quotes-app:latest` [cite: 15]
+* [cite_start]**Status:** Confirmed by a green checkmark in GitHub Actions[cite: 16].
 
-Registry
+---
 
-Docker Hub
+## 🚚 Phase 2: Continuous Delivery (CD) & Deployment
 
-Stores the final artifact at goutamsharma369/java-quotes-app.
+[cite_start]The CD phase uses Docker Compose on the EC2 host to deploy the latest image[cite: 18].
 
-Deployment
+### Crucial Deployment Fixes
 
-Docker Compose
+[cite_start]The application failed to launch or be reached due to two environmental conflicts[cite: 20]:
 
-Used on the EC2 Ubuntu server for simplified deployment.
+| Issue | Diagnosis | Resolution Command / Action |
+| :--- | :--- | :--- |
+| **Port 80 Conflict** | [cite_start]Nginx was running on host Port 80, blocking Docker[cite: 21]. | [cite_start]`sudo systemctl stop nginx` [cite: 21] |
+| **Port Mismatch** | [cite_start]`docker-compose.yml` was incorrectly mapping `80:5000` while the Java app ran on `8000`[cite: 21]. | [cite_start]File was updated to `ports: - "80:8000"`[cite: 21]. |
 
-⚙️ CI/CD Pipeline Flow
+### Final Deployment Sequence
 
-The workflow defined in .github/workflows/main.yml is the engine for this project.
+[cite_start]After resolving the conflicts, the application was launched using the corrected configuration[cite: 23]:
 
-Trigger: A push to the main branch starts the pipeline.
+1.  **Cleanup & Stop Old Container:**
+    ```bash
+    sudo docker-compose down
+    ```
+2.  **Pull Latest Image and Launch:**
+    ```bash
+    sudo docker-compose up -d
+    ```
 
-Test (CI): The workflow sets up Java 17 and runs mock unit tests (or real tests in a production setup).
+### Final Deployment Status
 
-Build (CI): The Dockerfile compiles the Java code and creates a container image.
+[cite_start]The application is successfully running and exposed on the standard HTTP port[cite: 29]:
 
-Publish (CI): Using stored GitHub Secrets (DOCKER_USERNAME & DOCKER_PASSWORD), the image is pushed to Docker Hub.
+### Final Deployment Configuration (`docker-compose.yml`)
 
-Deploy (CD): The final image is ready to be pulled and launched on the target EC2 server.
+[cite_start]This is the final, corrected configuration used to launch the application[cite: 31, 33]:
 
-🐳 Deployment Instructions (Continuous Delivery)
-
-To run the application, you must use docker-compose on the EC2 host. Note that the application runs internally on port 8000, which is mapped to external port 80.
-
-Prerequisites
-
-GitHub Secrets are configured for the CI phase.
-
-Docker and docker-compose are installed on the EC2 host.
-
-The EC2 host has authenticated with Docker Hub (docker login).
-
-The AWS Security Group must have an Inbound Rule allowing TCP Port 80 (HTTP) from your desired IP ranges.
-
-The Correct Deployment Configuration
-
-This is the version of the docker-compose.yml that successfully ran the application (correcting the critical 80:5000 error):
-
+```yaml
 version: '3.8'
-
 services:
   web:
     image: goutamsharma369/java-quotes-app:latest
     container_name: java_ci_cd_app
-    # CRITICAL: Maps external HTTP port 80 to the internal Java application port 8000
+    # Correct mapping of external HTTP (80) to internal Java app (8000)
     ports:
-      - "80:8000"
-    restart: always
-
-
-Deployment Commands
-
-Execute these commands from the directory containing the docker-compose.yml file:
-
-Stop and Remove Existing Containers: (Clears old, incorrect deployments)
-
-sudo docker-compose down
-
-
-Pull Latest Image and Start Application:
-
-sudo docker-compose up -d
-
-
-⚠️ Key Troubleshooting Points
-
-These are the main issues encountered during setup that must be addressed for future deployments:
-
-PAT Scope: The Personal Access Token used for Git push MUST have the workflow scope checked, as the workflow files are stored in a protected directory.
-
-Port Conflict: A pre-existing Nginx service was using host Port 80. If the deployment fails due to "address already in use," stop the conflicting service: sudo systemctl stop nginx.
-
-Final Port Mapping: The Dockerfile exposes 8000, requiring the docker-compose.yml to use the mapping 80:8000.
+      - [cite_start]"80:8000" [cite: 39, 40]
+    [cite_start]restart: always [cite: 41]
